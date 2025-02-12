@@ -1,9 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>About Rango</title>
-</head>
-<body>
+{% extends 'rango/base.html' %}
+
+{% block title_block %}
+About Rango
+{% endblock %}
+
+{% block content %}
     <h1>Rango says here is the about page.</h1>
     <p>This tutorial has been put together by haojieyan.</p>
 
@@ -12,6 +13,4 @@
     <img src="/static/images/rango.jpg" alt="Picture of Rango" />
     <img src="/media/cat.jpg" alt="Picture of a Cat." />
     
-    
-</body>
-</html>
+{% endblock %}
