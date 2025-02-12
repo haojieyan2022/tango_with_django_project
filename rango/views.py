@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import HttpResponse
 from rango.models import Category, Page
+from rango.forms import CategoryForm, PageForm
 
 # Create your views here.
 def index(request):
@@ -29,3 +31,31 @@ def show_category(request, category_name_slug):
         context_dict['error_message'] = "The specified category does not exist."
 
     return render(request, 'rango/category.html', context=context_dict)
+
+def add_category(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save(commit=True)
+            return redirect(reverse('rango:index'))
+    else:
+        form = CategoryForm()
+    return render(request, 'rango/add_category.html', {'form': form})
+
+def add_page(request, category_name_slug):
+    try:
+        category = Category.objects.get(slug=category_name_slug)
+    except Category.DoesNotExist:
+        return redirect(reverse('rango:index'))
+
+    if request.method == 'POST':
+        form = PageForm(request.POST)
+        if form.is_valid():
+            page = form.save(commit=False)
+            page.category = category
+            page.save()
+            return redirect(reverse('rango:show_category', kwargs={'category_name_slug': category_name_slug}))
+    else:
+        form = PageForm()
+
+    return render(request, 'rango/add_page.html', {'form': form, 'category': category})
