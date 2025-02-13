@@ -7,11 +7,16 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.contrib import messages
+from datetime import datetime
 
 # Create your views here.
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
     page_list = Page.objects.order_by('-views')[:5]
+
+    # Handle the `session` to track the access time
+    visitor_cookie_handler(request)
+
     context_dict = {
         'boldmessage': "hey there partner!",
         'categories': category_list,
@@ -20,6 +25,10 @@ def index(request):
     return render(request, 'rango/index.html', context=context_dict)
 
 def about(request):
+    visitor_cookie_handler(request)
+    visits = request.session.get('visits', 1)
+
+    context_dict = {'visits': visits}
     return render(request, 'rango/about.html')
 
 def show_category(request, category_name_slug):
@@ -123,3 +132,18 @@ def restricted(request):
         return redirect_to_login(request.get_full_path(), settings.LOGIN_URL)
     return render(request, 'rango/restricted.html')
 
+def visitor_cookie_handler(request):
+   
+    # Retrieve `last_visit`, if it does not exist, the default value will be `now()`.
+    last_visit = request.session.get('last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit, "%Y-%m-%d %H:%M:%S.%f")
+
+    # Obtain `visits`, if it does not exist, the default value will be 1.
+    visits = request.session.get('visits', 1)
+
+    # The visit count will be incremented only when `last_visit` has elapsed for more than one day.
+    if (datetime.now() - last_visit_time).days > 0:
+        visits += 1
+        request.session['last_visit'] = str(datetime.now())
+
+    request.session['visits'] = visits
