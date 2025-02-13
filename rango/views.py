@@ -13,9 +13,18 @@ from datetime import datetime
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
     page_list = Page.objects.order_by('-views')[:5]
+    
+    last_visit = request.session.get('last_visit')
+    
+    if last_visit:
+        last_visit_time = datetime.strptime(last_visit, '%Y-%m-%d %H:%M:%S.%f')
+        if (datetime.now() - last_visit_time).days > 0:  
+            request.session['visits'] = request.session.get('visits', 0) + 1
+            request.session['last_visit'] = str(datetime.now())
 
-    # Handle the `session` to track the access time
-    visitor_cookie_handler(request)
+    else:
+        request.session['visits'] = 1
+        request.session['last_visit'] = str(datetime.now())
 
     context_dict = {
         'boldmessage': "hey there partner!",
@@ -25,11 +34,10 @@ def index(request):
     return render(request, 'rango/index.html', context=context_dict)
 
 def about(request):
-    visitor_cookie_handler(request)
     visits = request.session.get('visits', 1)
 
     context_dict = {'visits': visits}
-    return render(request, 'rango/about.html')
+    return render(request, 'rango/about.html', context=context_dict)
 
 def show_category(request, category_name_slug):
     context_dict = {}

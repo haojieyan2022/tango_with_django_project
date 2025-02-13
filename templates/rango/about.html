@@ -7,10 +7,11 @@ About Rango
 {% block content %}
     <h1>Rango says here is the about page.</h1>
     <p>This tutorial has been put together by haojieyan.</p>
+    <p>Visits: {{ visits }}</p>
 
-    <a href="{% url 'rango:index' %}">Index</a>
+    <a href="{% url 'rango:index' %}">Index</a><br />
 
-    <img src="/static/images/rango.jpg" alt="Picture of Rango" />
-    <img src="/media/cat.jpg" alt="Picture of a Cat." />
+    <img src="/static/images/rango.jpg" alt="Picture of Rango" width="200" height="auto" />
+    <img src="/media/cat.jpg" alt="Picture of a Cat." width="200" height="auto"/>
     
 {% endblock %}
